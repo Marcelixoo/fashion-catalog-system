@@ -46,4 +46,5 @@ For further reference, we'll identify a few of the actors involved in the main w
 ## Further information
 
 - [Architectural Overview](ARCHITECTURE.md)
+- [Architectural Decision Records (ADRs)](decisions/README.md)
 - [Threat Model Analysis](THREAT_MODEL_ANALYSIS.md)
