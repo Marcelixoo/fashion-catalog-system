@@ -37,10 +37,10 @@ For further reference, we'll identify a few of the actors involved in the main w
 
 ## Non-functional requirements
 
-1. Durability: service should operate 24/7 with uptime of 99%.
-2. Observability: easy visualization of daily updates & aging of data.
+1. Durability: fault tolerance & archivability of historical data.
+2. Observability: easy visualization of key metrics, e.g. number of daily updates, leading time for items to go from "pending approval" to "approved".
 3. Agility: strive for streamlined maintenance & isolated testing.
-4. Resiliency: service should not stop if dependencies are down (e.g. Enrichment API, Translation API).
+4. Resiliency: service should not stop if dependencies are down or slow to respond (e.g.Cloud Translation API).
 
  ## Visualize the structure
 
