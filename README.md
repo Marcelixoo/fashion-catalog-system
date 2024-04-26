@@ -29,7 +29,7 @@ For further reference, we'll identify a few of the actors involved in the main w
   - Step necessary for reviewing generated content & correcting potential mistakes.
 - **Merchandising Employee** approves recently added product.
   - Only "approved" products are available on listings.
-- Notifications about recently added products are published.
+- Recently approved products are broadcasted to **Downstream teams**.
   - Notifications take the form of messages from a message queue.
   - Only "approved" products are notified.
   - **Downstream teams** have the ability to subscribe to "recently-added" topic to consume updates.
