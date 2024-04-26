@@ -43,8 +43,7 @@ For further reference, we'll identify a few of the actors involved in the main w
 3. Agility: strive for streamlined maintenance & isolated testing.
 4. Resiliency: service should not stop if dependencies are down or slow to respond (e.g.Cloud Translation API).
 
- ## Visualize the structure
+## Further information
 
-- High-level diagrams (C4 model with context, component levels)
-- Main workflows
-- Consider using icePanel (see https://icepanel.io/c4-model)
+- [Architectural Overview](ARCHITECTURE.md)
+- [Threat Model Analysis](THREAT_MODEL_ANALYSIS.md)
