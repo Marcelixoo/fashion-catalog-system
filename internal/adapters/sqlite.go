@@ -88,3 +88,101 @@ func (r *SQLliteArticleRepository) Save(article *models.Article) (int, error) {
 
 	return int(id), err
 }
+
+func (r *SQLliteArticleRepository) FindByTags(tags []*models.Tag) ([]*models.Article, error) {
+	return []*models.Article{}, nil
+}
+
+type SQLliteTagsRepository struct {
+	db *sql.DB
+}
+
+func NewSQLliteTagsRepository(db *sql.DB) *SQLliteTagsRepository {
+	return &SQLliteTagsRepository{db: db}
+}
+
+func (r *SQLliteTagsRepository) Save(tag *models.Tag) (int, error) {
+	query := `
+		INSERT INTO tags (label, updated_at, created_at)
+		VALUES (?, ?, ?)
+		ON CONFLICT(label) DO UPDATE SET
+			label = ?,
+			updated_at = ?;
+	`
+
+	result, err := r.db.Exec(query,
+		tag.Label,
+		tag.UpdatedAt,
+		tag.CreatedAt,
+		tag.Label,
+		tag.UpdatedAt,
+	)
+	if err != nil {
+		return 0, err
+	}
+
+	id, err := result.LastInsertId()
+	if err != nil {
+		return 0, err
+	}
+
+	return int(id), err
+}
+
+func (r *SQLliteTagsRepository) FindByLabel(label string) (*models.Tag, error) {
+	query := `
+		SELECT id, label, created_at, updated_at
+		FROM tags
+		WHERE label = ?
+	`
+	row := r.db.QueryRow(query, label)
+
+	var tag models.Tag
+	err := row.Scan(&tag.ID, &tag.Label, &tag.CreatedAt, &tag.UpdatedAt)
+	if err != nil {
+		return nil, err
+	}
+
+	return &tag, nil
+}
+
+func (r *SQLliteTagsRepository) FindById(id int) (*models.Tag, error) {
+	query := `
+		SELECT id, label, created_at, updated_at
+		FROM tags
+		WHERE id = ?
+	`
+	row := r.db.QueryRow(query, id)
+
+	var tag models.Tag
+	err := row.Scan(&tag.ID, &tag.Label, &tag.CreatedAt, &tag.UpdatedAt)
+	if err != nil {
+		return nil, err
+	}
+
+	return &tag, nil
+}
+
+func (r *SQLliteTagsRepository) FindAll() ([]*models.Tag, error) {
+	query := `
+		SELECT id, label, created_at, updated_at
+		FROM tags
+	`
+	rows, err := r.db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var tags []*models.Tag
+	for rows.Next() {
+		var tag models.Tag
+		err := rows.Scan(&tag.ID, &tag.Label, &tag.CreatedAt, &tag.UpdatedAt)
+		if err != nil {
+			return nil, err
+		}
+		tags = append(tags, &tag)
+	}
+
+	return tags, nil
+}

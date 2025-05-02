@@ -22,3 +22,8 @@ func NewArticle(title, body string, author *Author, tags []string) *Article {
 		CreatedAt: time.Now().Format(time.RFC3339),
 	}
 }
+
+type ArticleRepository interface {
+	Save(*Article) (int, error)
+	FindByTags(tags []*Tag) ([]*Article, error)
+}

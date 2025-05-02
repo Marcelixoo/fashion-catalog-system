@@ -18,6 +18,21 @@ func Migrate(db *sql.DB) error {
 			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 			FOREIGN KEY (author_id) REFERENCES author (id)
 		);
+
+		CREATE TABLE IF NOT EXISTS tags (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			label TEXT NOT NULL UNIQUE,
+			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+			updated_at TIMESTAMP
+		);
+
+		CREATE TABLE IF NOT EXISTS article_tags (
+			article_id INTEGER NOT NULL,
+			tag_id INTEGER NOT NULL,
+			PRIMARY KEY (article_id, tag_id),
+			FOREIGN KEY (article_id) REFERENCES articles (id),
+			FOREIGN KEY (tag_id) REFERENCES tags (id)
+		);
 	`)
 
 	return err

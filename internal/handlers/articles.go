@@ -36,7 +36,7 @@ type AddArticlesResponse struct {
 	Failed   []map[string]ArticleInput `json:"failed"`
 }
 
-func AddArticles(repository ArticleRepository, finder AuthorsFinder, engine search.SearchEngine, sync *search.IndexSyncManager) gin.HandlerFunc {
+func AddArticles(repository ArticleRepository, finder AuthorsFinder, sync *search.IndexSyncManager) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var inputs []ArticleInput
 		if err := c.ShouldBindJSON(&inputs); err != nil {
@@ -88,7 +88,7 @@ func AddArticles(repository ArticleRepository, finder AuthorsFinder, engine sear
 	}
 }
 
-func AddArticle(repository ArticleRepository, finder AuthorsFinder, engine search.SearchEngine) gin.HandlerFunc {
+func AddArticle(repository ArticleRepository, finder AuthorsFinder, sync *search.IndexSyncManager) gin.HandlerFunc {
 	return func(c *gin.Context) {
 
 		var input ArticleInput
