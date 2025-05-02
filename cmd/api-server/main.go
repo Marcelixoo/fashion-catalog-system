@@ -36,19 +36,20 @@ func main() {
 
 	r := gin.Default()
 	// resource: articles
-	r.POST("/articles", handlers.AddArticle(articles, authors, sync))
-	r.POST("/articles/batch", handlers.AddArticles(articles, authors, sync))
+	r.POST("/articles", handlers.AddArticle(articles, authors, tags, sync))
+	r.POST("/articles/batch", handlers.AddArticles(articles, authors, tags, sync))
 
 	// resource: authors
 	r.POST("/authors", handlers.AddAuthor(authors))
 	r.POST("/authors/batch", handlers.AddAuthors(authors))
 
 	// resource: tags
-	r.POST("/tags", handlers.AddTag(tags, sync))
+	r.POST("/tags", handlers.AddTag(tags))
 	r.PATCH("/tags/:label", handlers.UpdateTagWithLabel(tags, sync))
-	r.POST("/tags/batch", handlers.AddTagsInBatch(tags, sync))
+	r.POST("/tags/batch", handlers.AddTagsInBatch(tags))
 	r.GET("/tags", handlers.ListAllTags(tags))
 	r.GET("/tags/:label", handlers.GetTagByLabel(tags))
+	r.GET("/tags/:label/articles", handlers.FindArticlesByLabels(articles, tags))
 
 	// resource: search
 	r.GET("/search", handlers.SearchArticles(engine))
