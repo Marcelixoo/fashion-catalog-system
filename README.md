@@ -1,47 +1,82 @@
-# fashion-catalog-system
+# mini-search-lpatform
 
 ## Outline
 
-The Fashion Catalog System is a supercharged PIM-like software specialised in managing product catalog metadata from the fashion industry.
+The Mini Search Platform is a news platform specialised in making articles  searchable.
 
-The system is inspired by a real-world and proprietary implementation of the PIM service that runs for the webshop https://momoxfashion.com (company where I work at the time of writing). Some features were removed and others were added based on my wishes for an open-source version of the product.
+The system is inspired by a real-world and proprietary implementation of a Search Platform that runs for the webshop https://momoxfashion.com (company where I work at the time of writing). Some features were removed and others were added based on my wishes for an open-source version of the product.
 
 All functionatilly is exposed to collaborating systems via a unified REST API. Therefore, no user interface is available within this project.
 
 ## Use cases
 
-For further reference, we'll identify a few of the actors involved in the main workflows supporded by the system: 
+📝 Articles
+`POST /articles`
+Create a single article with metadata (title, body, author, tags).
+Automatically syncs the article to the search index.
 
-1. The **Downstream teams**, interested in items recently added to the catalog, e.g. Business Inteligence, Pricing, Inventory.
-2. The **Merchandising team**, responsible for defining product types and reviewing generated content.
-3. The **Warehouse team**, responsible for adding new items to the catalog with an initial set of basic attributes, e.g. colour, size, brand, type.
+`POST /articles/batch`
+Create multiple articles in one request.
+Each article includes an author and a list of tags.
+All articles are synced to the search engine after insert.
 
-- **Warehouse Employee** adds a new batch of products.
-  - Product attributes are filled in English.
-  - Product attributes are translated into German & French before storage.
-  - Rich descriptions are generated for each product.
-- **Merchandising Employee** creates a product type definition.
-- **Merchandising Employee** removes a product type definition.
-- **Merchandising Employee** updates the definition of a product type.
-- **Merchandising Employee** lists all existing product type definitions.
-- **Merchandising Employee** lists products with pending approval.
-- **Merchandising Employee** updates product attributes.
-  - Step necessary for reviewing generated content & correcting potential mistakes.
-- **Merchandising Employee** approves recently added product.
-  - Only "approved" products are available on listings.
-- Recently approved products are broadcasted to **Downstream teams**.
-  - Notifications take the form of messages from a message queue.
-  - Only "approved" products are notified.
-  - **Downstream teams** have the ability to subscribe to "recently-added" topic to consume updates.
+👤 Authors
+`POST /authors`
+Create a new author with a unique ID and name.
 
-**Note:** Products are stored for undetermined period of time for auditing purposes and/or in case of returns.
+`POST /authors/batch`
+Batch insert multiple authors.
+Useful during initial data ingestion or import operations.
+
+🏷️ Tags
+`POST /tags`
+Add a new tag by label.
+If the tag already exists, it can be updated or rejected depending on backend logic.
+
+`PATCH /tags/:label`
+Update the label of an existing tag.
+Triggers a background resync of related articles in the search index to reflect the updated tag.
+
+`POST /tags/batch`
+Batch insert multiple tags.
+Returns a summary of how many were inserted vs. failed.
+
+`GET /tags`
+List all tags stored in the database.
+Supports use in filtering UIs or autocomplete features.
+
+`GET /tags/:label`
+Retrieve a single tag by its label.
+Useful for checking if a tag exists before assigning it to an article.
+
+`GET /tags/:label/articles`
+Fetch all articles that are associated with a tag matching the provided label.
+Returns full articles, each with a list of their tags (not just the matching one).
+
+🔎 Search
+`GET /search`
+Perform a full-text search across articles via the search engine.
+Supports keyword queries and may include filters (e.g., by tag or author) depending on implementation.
+
 
 ## Non-functional requirements
 
 1. Durability: fault tolerance & archivability of historical data.
-2. Observability: easy visualization of key metrics, e.g. number of daily updates, leading time for items to go from "pending approval" to "approved".
 3. Agility: strive for streamlined maintenance & isolated testing.
 4. Resiliency: service should not stop if dependencies are down or slow to respond (e.g.Cloud Translation API).
+
+## Local setup
+
+### 1. Start Meilisearch container
+
+docker run -it --rm -p 7700:7700 getmeili/meilisearch
+
+### 2. Start the application
+go run cmd/api-server/main.go
+
+## Sample requests
+
+Sample requests are available at [examples/mini-search-platform.postman_collection.json](examples/mini-search-platform.postman_collection.json)
 
 ## Further information
 
