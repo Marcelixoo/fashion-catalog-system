@@ -82,48 +82,62 @@ Sample requests are available at [examples/mini-search-platform.postman_collecti
 This system models a publishing platform with articles, authors, and tags. It supports a many-to-many relationship between articles and tags.
 
 📊 Tables Overview
-authors
-Column	Type	Constraints
-id	INTEGER	Primary key, Auto-increment
-name	TEXT	Not null, Unique
-created_at	TIMESTAMP	Defaults to CURRENT_TIMESTAMP
+### 👤 `authors`
 
-articles
-Column	Type	Constraints
-id	INTEGER	Primary key, Auto-increment
-title	TEXT	Not null
-body	TEXT	Not null
-author_id	INTEGER	Foreign key → authors(id), Not null
-created_at	TIMESTAMP	Defaults to CURRENT_TIMESTAMP
+| Column     | Type      | Constraints                          |
+|------------|-----------|--------------------------------------|
+| `id`       | INTEGER   | Primary key, Auto-increment          |
+| `name`     | TEXT      | Not null, Unique                     |
+| `created_at` | TIMESTAMP | Defaults to `CURRENT_TIMESTAMP`     |
 
-tags
-Column	Type	Constraints
-id	INTEGER	Primary key, Auto-increment
-label	TEXT	Not null, Unique
-created_at	TIMESTAMP	Defaults to CURRENT_TIMESTAMP
-updated_at	TIMESTAMP	Nullable
+---
 
-article_tags
-Column	Type	Constraints
-article_id	INTEGER	Primary key (with tag_id), Foreign key → articles(id)
-tag_id	INTEGER	Primary key (with article_id), Foreign key → tags(id)
+### 📝 `articles`
+
+| Column      | Type      | Constraints                              |
+|-------------|-----------|------------------------------------------|
+| `id`        | INTEGER   | Primary key, Auto-increment              |
+| `title`     | TEXT      | Not null                                 |
+| `body`      | TEXT      | Not null                                 |
+| `author_id` | INTEGER   | Foreign key → `authors(id)`, Not null    |
+| `created_at`| TIMESTAMP | Defaults to `CURRENT_TIMESTAMP`          |
+
+---
+
+### 🏷️ `tags`
+
+| Column       | Type      | Constraints                          |
+|--------------|-----------|--------------------------------------|
+| `id`         | INTEGER   | Primary key, Auto-increment          |
+| `label`      | TEXT      | Not null, Unique                     |
+| `created_at` | TIMESTAMP | Defaults to `CURRENT_TIMESTAMP`      |
+| `updated_at` | TIMESTAMP | Nullable                             |
+
+---
+
+### 🔗 `article_tags`
+
+| Column      | Type    | Constraints                                                  |
+|-------------|---------|--------------------------------------------------------------|
+| `article_id`| INTEGER | Primary key (with `tag_id`), Foreign key → `articles(id)`    |
+| `tag_id`    | INTEGER | Primary key (with `article_id`), Foreign key → `tags(id)`    |
+
+
 
 🔁 Relationships
-1 Author → many Articles
+- **1 Author → many Articles**
 Each article is written by a single author (articles.author_id → authors.id).
-
-Many Articles ↔ Many Tags
+- **Many Articles ↔ Many Tags**
 Represented via the join table article_tags.
 
 📘 Diagram (Text-based)
-markdown
-Copy code
+```markdown
 authors
  └───< articles
            └───< article_tags >───┐
                                   │
                                 tags
-
+```
 
 ## Further information
 
