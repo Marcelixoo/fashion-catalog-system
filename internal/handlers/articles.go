@@ -1,9 +1,12 @@
 package handlers
 
 import (
+	"context"
 	"mini-search-platform/internal/models"
 	"mini-search-platform/internal/search"
+	"time"
 
+	"github.com/cenkalti/backoff/v4"
 	"github.com/gin-gonic/gin"
 )
 
@@ -67,11 +70,7 @@ func AddArticles(repository ArticleRepository, finder AuthorsFinder, engine sear
 			inserted = append(inserted, article)
 		}
 
-		err := engine.IndexArticles(inserted)
-		if err != nil {
-			c.JSON(500, gin.H{"error": "Failed to index articles"})
-			return
-		}
+		go ResyncWithRetry(context.Background(), engine, inserted)
 
 		c.JSON(201, AddArticlesResponse{
 			Summary: AddArticlesSummary{
@@ -117,4 +116,23 @@ func AddArticle(repository ArticleRepository, finder AuthorsFinder, engine searc
 
 		c.JSON(201, article)
 	}
+}
+
+func ResyncWithRetry(ctx context.Context, engine search.SearchEngine, articlesToSync []*models.Article) error {
+	operation := func() error {
+		err := engine.IndexArticles(articlesToSync)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+
+	expBackoff := backoff.NewExponentialBackOff()
+	expBackoff.MaxElapsedTime = 10 * time.Second // stop retrying after 10 seconds
+
+	if err := backoff.Retry(operation, backoff.WithContext(expBackoff, ctx)); err != nil {
+		return err
+	}
+
+	return nil
 }
