@@ -3,16 +3,16 @@ package models
 import "time"
 
 type Article struct {
-	ID        int      `json:"id"`
-	Title     string   `json:"title"`
-	Body      string   `json:"body"`
-	Author    string   `json:"author"`
-	AuthorID  int      `json:"author_id"`
-	CreatedAt string   `json:"created_at"`
-	Tags      []string `json:"tags"`
+	ID        int    `json:"id"`
+	Title     string `json:"title"`
+	Body      string `json:"body"`
+	Author    string `json:"author"`
+	AuthorID  int    `json:"author_id"`
+	CreatedAt string `json:"created_at"`
+	Tags      []*Tag `json:"tags"`
 }
 
-func NewArticle(title, body string, author *Author, tags []string) *Article {
+func NewArticle(title, body string, author *Author, tags []*Tag) *Article {
 	return &Article{
 		Title:     title,
 		Body:      body,
@@ -25,5 +25,5 @@ func NewArticle(title, body string, author *Author, tags []string) *Article {
 
 type ArticleRepository interface {
 	Save(*Article) (int, error)
-	FindByTags(tags []*Tag) ([]*Article, error)
+	FindByTag(tags *Tag) ([]*Article, error)
 }

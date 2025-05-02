@@ -26,5 +26,6 @@ type TagsRepository interface {
 	Save(*Tag) (int, error)
 	FindById(id int) (*Tag, error)
 	FindByLabel(label string) (*Tag, error)
+	FindByLabels(labels []string) ([]*Tag, error)
 	FindAll() ([]*Tag, error)
 }

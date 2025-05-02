@@ -9,10 +9,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type ArticleRepository interface {
-	Save(*models.Article) (int, error)
-}
-
 type AuthorsFinder interface {
 	FindAuthorById(id int) (*models.Author, error)
 }
@@ -36,7 +32,7 @@ type AddArticlesResponse struct {
 	Failed   []map[string]ArticleInput `json:"failed"`
 }
 
-func AddArticles(repository ArticleRepository, finder AuthorsFinder, sync *search.IndexSyncManager) gin.HandlerFunc {
+func AddArticles(repository models.ArticleRepository, finder AuthorsFinder, tagsRepository models.TagsRepository, sync *search.IndexSyncManager) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var inputs []ArticleInput
 		if err := c.ShouldBindJSON(&inputs); err != nil {
@@ -55,7 +51,15 @@ func AddArticles(repository ArticleRepository, finder AuthorsFinder, sync *searc
 				continue
 			}
 
-			article := models.NewArticle(input.Title, input.Body, author, input.Tags)
+			tags, err := tagsRepository.FindByLabels(input.Tags)
+			if err != nil {
+				failed = append(failed, map[string]ArticleInput{
+					"tags not found": input,
+				})
+				continue
+			}
+
+			article := models.NewArticle(input.Title, input.Body, author, tags)
 
 			lastInsertedId, err := repository.Save(article)
 			if err != nil {
@@ -88,7 +92,7 @@ func AddArticles(repository ArticleRepository, finder AuthorsFinder, sync *searc
 	}
 }
 
-func AddArticle(repository ArticleRepository, finder AuthorsFinder, sync *search.IndexSyncManager) gin.HandlerFunc {
+func AddArticle(repository models.ArticleRepository, finder AuthorsFinder, tagsRepository models.TagsRepository, sync *search.IndexSyncManager) gin.HandlerFunc {
 	return func(c *gin.Context) {
 
 		var input ArticleInput
@@ -103,11 +107,17 @@ func AddArticle(repository ArticleRepository, finder AuthorsFinder, sync *search
 			return
 		}
 
-		article := models.NewArticle(input.Title, input.Body, author, input.Tags)
+		tags, err := tagsRepository.FindByLabels(input.Tags)
+		if err != nil {
+			c.JSON(400, gin.H{"error": "Could not find one (or more) tags"})
+			return
+		}
+
+		article := models.NewArticle(input.Title, input.Body, author, tags)
 
 		lastInsertedId, err := repository.Save(article)
 		if err != nil {
-			c.JSON(500, gin.H{"error": "Failed to insert article"})
+			c.JSON(500, gin.H{"error": "Failed to save article"})
 			return
 		}
 

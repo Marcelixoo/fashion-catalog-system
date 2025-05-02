@@ -55,14 +55,13 @@ func NewIndexSyncManager(engine SearchEngine, articlesRepository models.ArticleR
 	}
 }
 
-func (m *IndexSyncManager) SyncAfterTagsChanged(modifiedTags []*models.Tag) error {
-	// articles, err := m.ArticlesRepository.FindByTags(modifiedTags)
-	// if err != nil {
-	// 	return err
-	// }
+func (m *IndexSyncManager) SyncAfterTagsChanged(tagToSync *models.Tag) error {
+	articles, err := m.ArticlesRepository.FindByTag(tagToSync)
+	if err != nil {
+		return err
+	}
 
-	// return m.Engine.IndexArticles(articles)
-	return nil
+	return m.Engine.IndexArticles(articles)
 }
 
 func (m *IndexSyncManager) SyncAfterArticlesChanged(articlesToSync []*models.Article) error {

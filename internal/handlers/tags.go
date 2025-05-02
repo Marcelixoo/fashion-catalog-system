@@ -25,7 +25,7 @@ type AddTagsInBatchResponse struct {
 	Failed   []map[string]TagInput `json:"failed"`
 }
 
-func AddTagsInBatch(repository models.TagsRepository, sync *search.IndexSyncManager) gin.HandlerFunc {
+func AddTagsInBatch(repository models.TagsRepository) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var inputs []TagInput
 		if err := c.ShouldBindJSON(&inputs); err != nil {
@@ -50,14 +50,6 @@ func AddTagsInBatch(repository models.TagsRepository, sync *search.IndexSyncMana
 			inserted = append(inserted, tag)
 		}
 
-		resync := func(modifiedTags []*models.Tag) error {
-			operation := func() error {
-				return sync.SyncAfterTagsChanged(modifiedTags)
-			}
-			return retry.WithBackoff(context.Background(), operation)
-		}
-		go resync(inserted)
-
 		c.JSON(201, AddTagsInBatchResponse{
 			Summary: AddTagsInBatchSummary{
 				TotalInserted: len(inserted),
@@ -69,7 +61,7 @@ func AddTagsInBatch(repository models.TagsRepository, sync *search.IndexSyncMana
 	}
 }
 
-func AddTag(repository models.TagsRepository, sync *search.IndexSyncManager) gin.HandlerFunc {
+func AddTag(repository models.TagsRepository) gin.HandlerFunc {
 	return func(c *gin.Context) {
 
 		var input TagInput
@@ -87,14 +79,6 @@ func AddTag(repository models.TagsRepository, sync *search.IndexSyncManager) gin
 		}
 
 		retrieved, _ := repository.FindById(lastInsertedId)
-
-		resync := func(tagsToSync []*models.Tag) error {
-			operation := func() error {
-				return sync.SyncAfterTagsChanged(tagsToSync)
-			}
-			return retry.WithBackoff(context.Background(), operation)
-		}
-		go resync([]*models.Tag{retrieved})
 
 		c.JSON(201, retrieved)
 	}
@@ -130,13 +114,13 @@ func UpdateTagWithLabel(repository models.TagsRepository, sync *search.IndexSync
 
 		retrieved, _ := repository.FindById(lastInsertedId)
 
-		resync := func(tagsToSync []*models.Tag) error {
+		resync := func(tagToSync *models.Tag) error {
 			operation := func() error {
-				return sync.SyncAfterTagsChanged(tagsToSync)
+				return sync.SyncAfterTagsChanged(tagToSync)
 			}
 			return retry.WithBackoff(context.Background(), operation)
 		}
-		go resync([]*models.Tag{retrieved})
+		go resync(retrieved)
 
 		c.JSON(200, retrieved)
 	}
@@ -164,5 +148,29 @@ func GetTagByLabel(repository models.TagsRepository) gin.HandlerFunc {
 		}
 
 		c.JSON(200, tag)
+	}
+}
+
+func FindArticlesByLabels(articlesRepository models.ArticleRepository, tagsRepository models.TagsRepository) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		label := c.Param("label")
+		if label == "" {
+			c.JSON(400, gin.H{"error": "Label is required"})
+			return
+		}
+
+		tag, err := tagsRepository.FindByLabel(label)
+		if err != nil {
+			c.JSON(404, gin.H{"error": fmt.Sprintf("Could not find tag '%s'", label)})
+			return
+		}
+
+		articles, err := articlesRepository.FindByTag(tag)
+		if err != nil {
+			c.JSON(500, gin.H{"error": fmt.Sprintf("Could not find articles with tag %s", tag.Label)})
+			return
+		}
+
+		c.JSON(200, articles)
 	}
 }
