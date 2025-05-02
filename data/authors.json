@@ -1,0 +1,42 @@
+[
+  {
+    "author_id": 1,
+    "name": "Daniel Kahneman"
+  },
+  {
+    "author_id": 2,
+    "name": "Tim Ferriss"
+  },
+  {
+    "author_id": 3,
+    "name": "Elizabeth Gilbert"
+  },
+  {
+    "author_id": 4,
+    "name": "Stephen King"
+  },
+  {
+    "author_id": 5,
+    "name": "Austin Kleon"
+  },
+  {
+    "author_id": 6,
+    "name": "Marcus Aurelius"
+  },
+  {
+    "author_id": 7,
+    "name": "C. S. Lewis"
+  },
+  {
+    "author_id": 8,
+    "name": "Viktor E. Frankl"
+  },
+  {
+    "author_id": 9,
+    "name": "Tom Kelley"
+  },
+  {
+    "author_id": 10,
+    "name": "Steven Pressfield"
+  }
+]
