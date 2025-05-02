@@ -1,4 +1,4 @@
-# mini-search-lpatform
+# mini-search-platform
 
 ## Outline
 
