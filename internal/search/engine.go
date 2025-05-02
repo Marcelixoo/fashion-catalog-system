@@ -22,11 +22,11 @@ type SearchOptions struct {
 }
 
 type SearchHit struct {
-	ID     int      `json:"id"`
-	Title  string   `json:"title"`
-	Author string   `json:"author"`
-	Body   string   `json:"body"`
-	Tags   []string `json:"tags"`
+	ID     int          `json:"id"`
+	Title  string       `json:"title"`
+	Author string       `json:"author"`
+	Body   string       `json:"body"`
+	Tags   []models.Tag `json:"tags"`
 }
 
 type SearchHits struct {
@@ -44,14 +44,14 @@ type SearchResponse struct {
 type IndexSyncManager struct {
 	Engine             SearchEngine
 	ArticlesRepository models.ArticleRepository
-	// TagsRepository     models.TagRepository
+	TagsRepository     models.TagsRepository
 }
 
-func NewIndexSyncManager(engine SearchEngine, articlesRepository models.ArticleRepository) *IndexSyncManager {
+func NewIndexSyncManager(engine SearchEngine, articlesRepository models.ArticleRepository, tagsRepository models.TagsRepository) *IndexSyncManager {
 	return &IndexSyncManager{
 		Engine:             engine,
 		ArticlesRepository: articlesRepository,
-		// TagsRepository:     tagsRepository,
+		TagsRepository:     tagsRepository,
 	}
 }
 

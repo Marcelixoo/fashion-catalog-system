@@ -32,7 +32,7 @@ func main() {
 
 	engine := adapters.Init()
 
-	sync := search.NewIndexSyncManager(engine, articles)
+	sync := search.NewIndexSyncManager(engine, articles, tags)
 
 	r := gin.Default()
 	// resource: articles
