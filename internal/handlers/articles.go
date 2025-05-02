@@ -4,9 +4,8 @@ import (
 	"context"
 	"mini-search-platform/internal/models"
 	"mini-search-platform/internal/search"
-	"time"
+	"mini-search-platform/pkg/retry"
 
-	"github.com/cenkalti/backoff/v4"
 	"github.com/gin-gonic/gin"
 )
 
@@ -37,7 +36,7 @@ type AddArticlesResponse struct {
 	Failed   []map[string]ArticleInput `json:"failed"`
 }
 
-func AddArticles(repository ArticleRepository, finder AuthorsFinder, engine search.SearchEngine) gin.HandlerFunc {
+func AddArticles(repository ArticleRepository, finder AuthorsFinder, engine search.SearchEngine, sync *search.IndexSyncManager) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var inputs []ArticleInput
 		if err := c.ShouldBindJSON(&inputs); err != nil {
@@ -70,7 +69,13 @@ func AddArticles(repository ArticleRepository, finder AuthorsFinder, engine sear
 			inserted = append(inserted, article)
 		}
 
-		go ResyncWithRetry(context.Background(), engine, inserted)
+		resync := func(articlesToSync []*models.Article) error {
+			operation := func() error {
+				return sync.SyncAfterArticlesChanged(articlesToSync)
+			}
+			return retry.WithBackoff(context.Background(), operation)
+		}
+		go resync(inserted)
 
 		c.JSON(201, AddArticlesResponse{
 			Summary: AddArticlesSummary{
@@ -108,31 +113,14 @@ func AddArticle(repository ArticleRepository, finder AuthorsFinder, engine searc
 
 		article.ID = lastInsertedId
 
-		err = engine.IndexArticles([]*models.Article{article})
-		if err != nil {
-			c.JSON(500, gin.H{"error": "Failed to index article"})
-			return
+		resync := func(articlesToSync []*models.Article) error {
+			operation := func() error {
+				return sync.SyncAfterArticlesChanged(articlesToSync)
+			}
+			return retry.WithBackoff(context.Background(), operation)
 		}
+		go resync([]*models.Article{article})
 
 		c.JSON(201, article)
 	}
-}
-
-func ResyncWithRetry(ctx context.Context, engine search.SearchEngine, articlesToSync []*models.Article) error {
-	operation := func() error {
-		err := engine.IndexArticles(articlesToSync)
-		if err != nil {
-			return err
-		}
-		return nil
-	}
-
-	expBackoff := backoff.NewExponentialBackOff()
-	expBackoff.MaxElapsedTime = 10 * time.Second // stop retrying after 10 seconds
-
-	if err := backoff.Retry(operation, backoff.WithContext(expBackoff, ctx)); err != nil {
-		return err
-	}
-
-	return nil
 }
