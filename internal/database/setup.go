@@ -1,8 +1,8 @@
-package migrations
+package database
 
 import "database/sql"
 
-func Migrate(db *sql.DB) error {
+func Create(db *sql.DB) error {
 	_, err := db.Exec(`
 		CREATE TABLE IF NOT EXISTS authors (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,

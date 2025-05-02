@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 	"mini-search-platform/internal/adapters"
+	"mini-search-platform/internal/database"
 	"mini-search-platform/internal/handlers"
-	"mini-search-platform/internal/migrations"
 	"mini-search-platform/pkg/sqlite"
 
 	"mini-search-platform/internal/search"
@@ -21,7 +21,7 @@ func main() {
 	}
 	defer sqlite.Close(db)
 
-	err = migrations.Migrate(db)
+	err = database.Create(db)
 	if err != nil {
 		panic(err)
 	}
