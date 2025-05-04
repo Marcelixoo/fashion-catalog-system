@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"mini-search-platform/internal/adapters"
 	"mini-search-platform/internal/database"
 	"mini-search-platform/internal/handlers"
@@ -13,8 +12,6 @@ import (
 )
 
 func main() {
-	fmt.Println("running api-server...")
-
 	db, err := sqlite.Init()
 	if err != nil {
 		panic(err)

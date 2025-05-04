@@ -1,6 +1,6 @@
 # `/cmd`
 
-The `cmd` folder is where you place the application various entrypoints (AKA go run's|binaries). Keep it as in the examples, one binary per sub-folder.
+The `cmd` folder is where you place the application different entrypoints (AKA go run's|binaries). Keep it as in the examples, one binary per sub-folder.
 
 Examples:
 
