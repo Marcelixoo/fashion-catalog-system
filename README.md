@@ -1,14 +1,19 @@
 # mini-search-platform
 
-## Outline
-
 The Mini Search Platform is a news platform specialised in making articles  searchable.
 
 The system is inspired by a real-world and proprietary implementation of a Search Platform that runs for the webshop https://momoxfashion.com (company where I work at the time of writing). Some features were removed and others were added based on my wishes for an open-source version of the product.
 
 All functionatilly is exposed to collaborating systems via a unified REST API. Therefore, no user interface is available within this project.
 
-## Use cases
+# Table of Contents
+- [Functional requirements](#functional-requirements)
+- [Non-functional requirements](#non-functional-requirements)
+- [Local setup](#local-setup)
+- [Entity-relationship Model](#️-entity-relationship-model-er-model)
+- [Further information](#further-information)
+
+## Functional requirements
 
 📝 Articles
 `POST /articles`
@@ -67,18 +72,20 @@ Supports keyword queries and may include filters (e.g., by tag or author) depend
 
 ## Local setup
 
-### 1. Start Meilisearch container
+### 1. Starting Meilisearch container
 
 docker run -it --rm -p 7700:7700 getmeili/meilisearch
 
-### 2. Start the application
-go run cmd/api-server/main.go
+### 2. Starting the application
+go run cmd/server/main.go
+
+**Note:** the local setup relies on a SQLite database with in-memory driver.
 
 ## Sample requests
 
-Sample requests are available at [examples/mini-search-platform.postman_collection.json](examples/mini-search-platform.postman_collection.json)
+Sample requests are available at [examples/postman_collection.json](examples/postman_collection.json)
 
-🗂️ Entity-Relationship Model (ER Model)
+## 🗂️ Entity-Relationship Model (ER Model)
 This system models a publishing platform with articles, authors, and tags. It supports a many-to-many relationship between articles and tags.
 
 📊 Tables Overview
