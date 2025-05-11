@@ -63,6 +63,15 @@ The initial version of the system provides search capability to a publishing pla
   Perform a full-text search across articles via the search engine.
   Supports keyword queries and may include filters (e.g., by tag or author) depending on implementation.
 
+### Products (TDB)
+
+- Similar to `articles` products should be available as a a possible index type to be made searchable with optimised defaults and pre-defined schema.
+
+### Catalogue (TDB)
+
+- Manage different catalogues based on different marketplaces/languages.
+- Enrich catalogue raw data with additional categories and attributes.
+
 ## Non-functional requirements
 
 1. Durability: fault tolerance & archivability of historical data.
@@ -157,9 +166,78 @@ Relationships:
 • One article ↔ Many tags
 • One tag ↔ Many articles
 
+---
+
+### T: `products`
+
+| Column       | Type      | Constraints                     |
+| ------------ | --------- | ------------------------------- |
+| `article_id` | TEXT      | Primary key                     |
+| `title`      | TEXT      | Not null                        |
+| `brand`      | TEXT      | Not null                        |
+| `category`   | TEXT      | Not null                        |
+| `created_at` | TIMESTAMP | Defaults to `CURRENT_TIMESTAMP` |
+| `updated_at` | TIMESTAMP | Defaults to `CURRENT_TIMESTAMP` |
+
+Indexes:
+• Primary key on `article_id`
+
+Relationships:
+• One-to-Many: A product can have multiple variants (`variants.article_id → products.article_id`)
+
+---
+
+### T: `variants`
+
+| Column         | Type      | Constraints                                    |
+| -------------- | --------- | ---------------------------------------------- |
+| `variant_id`   | TEXT      | Primary key                                    |
+| `article_id`   | TEXT      | Foreign key → `products(article_id)`, Not null |
+| `size`         | TEXT      | Not null                                       |
+| `color`        | TEXT      | Not null                                       |
+| `price`        | FLOAT     | Not null                                       |
+| `availability` | BOOLEAN   | Not null                                       |
+| `updated_at`   | TIMESTAMP | Defaults to `CURRENT_TIMESTAMP`                |
+
+Indexes:
+• Foreign key index on `article_id`  
+• Composite index on (`article_id`, `size`, `color`) for fast variant lookup
+
+Relationships:
+• Many-to-One: Each variant belongs to one product (`article_id`)
+• One-to-Many: A product can have multiple variants
+
 ### Visual Diagram
 
 ![ER Model](assets/er-model.png)
+
+## Search Index
+
+The platform allows for dynamic creation of new search indexes matching one of the available types `Article` or `Product`, which will follow a pre-defined schema optimised for each use case.
+
+### I: `artifcles`
+
+| Field  | Type       | Searchable | Filterable | Sortable | Description                          |
+| ------ | ---------- | ---------- | ---------- | -------- | ------------------------------------ |
+| id     | `string`   | No         | No         | No       | Unique ID of the article             |
+| title  | `string`   | Yes        | No         | Yes      | Title of the article                 |
+| body   | `string`   | Yes        | No         | No       | Full body/content of the article     |
+| author | `string`   | Yes        | Yes        | Yes      | Name of the article's author         |
+| tags   | `string[]` | Yes        | Yes        | No       | List of tags assigned to the article |
+
+### I: `products` (TBD)
+
+| Field                       | Type       | Searchable | Filterable | Sortable | Description                                        |
+| --------------------------- | ---------- | ---------- | ---------- | -------- | -------------------------------------------------- |
+| article_id                  | `string`   | No         | No         | No       | Unique product identifier                          |
+| title                       | `string`   | Yes        | No         | Yes      | Product title used in search                       |
+| brand                       | `string`   | Yes        | Yes        | Yes      | Brand name                                         |
+| category                    | `string`   | Yes        | Yes        | Yes      | Product category (e.g., "shoes")                   |
+| facet_data.available_sizes  | `string[]` | No         | Yes        | No       | Aggregated list of available sizes across variants |
+| facet_data.available_colors | `string[]` | No         | Yes        | No       | Aggregated list of available colors                |
+| facet_data.is_in_stock      | `boolean`  | No         | Yes        | No       | True if at least one variant is in stock           |
+
+More details at [meilisearch.go](internal/adapters/meilisearch.go)
 
 ## Further information
 
