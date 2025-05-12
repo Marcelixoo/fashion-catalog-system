@@ -30,3 +30,5 @@ erDiagram
     INTEGER tag_id
   }
 ```
+
+**Note:** Image generated using https://mermaid.live

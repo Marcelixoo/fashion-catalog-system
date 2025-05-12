@@ -101,3 +101,5 @@ workspace {
     }
 }
 ```
+
+**Note:** Image generated using https://structurizr.com/dsl
