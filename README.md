@@ -63,14 +63,18 @@ The initial version of the system provides search capability to a publishing pla
   Perform a full-text search across articles via the search engine.
   Supports keyword queries and may include filters (e.g., by tag or author) depending on implementation.
 
-### Products (TDB)
+### Products (TBD)
 
 - Similar to `articles` products should be available as a a possible index type to be made searchable with optimised defaults and pre-defined schema.
 
-### Catalogue (TDB)
+### Catalogue (TBD)
 
 - Manage different catalogues based on different marketplaces/languages.
 - Enrich catalogue raw data with additional categories and attributes.
+
+### Tenants (TBD)
+
+- Multiple tenants should have its own isolated space to generate API tokens and manage catalogues.
 
 ## Non-functional requirements
 
